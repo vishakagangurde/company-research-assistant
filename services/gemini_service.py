@@ -1,5 +1,6 @@
 import json
 import re
+import time
 import requests
 from config import settings
 
@@ -154,30 +155,56 @@ def generate_ai_report(
         }
     }
 
-    try:
-        response = requests.post(url, json=payload, timeout=120)
-        response.raise_for_status()
+    max_retries = 3
+    backoff = 15  # seconds to wait on first 429
 
-        data = response.json()
+    for attempt in range(1, max_retries + 1):
+        try:
+            response = requests.post(url, json=payload, timeout=120)
 
-        candidates = data.get("candidates", [])
-        if not candidates:
-            return _fallback_report(company_name, website, "No candidates returned from Gemini")
+            # Handle 429 rate limit with retry
+            if response.status_code == 429:
+                if attempt < max_retries:
+                    retry_after = int(response.headers.get("Retry-After", backoff))
+                    wait = max(retry_after, backoff)
+                    time.sleep(wait)
+                    backoff *= 2  # exponential backoff
+                    continue
+                else:
+                    return _fallback_report(
+                        company_name, website,
+                        "Gemini API rate limit exceeded (429). Please wait a minute and try again."
+                    )
 
-        content = candidates[0].get("content", {})
-        parts = content.get("parts", [])
+            response.raise_for_status()
 
-        if not parts:
-            return _fallback_report(company_name, website, "No response parts returned from Gemini")
+            data = response.json()
 
-        raw_output = parts[0].get("text", "")
+            candidates = data.get("candidates", [])
+            if not candidates:
+                return _fallback_report(company_name, website, "No candidates returned from Gemini")
 
-        report = _extract_json(raw_output)
+            content = candidates[0].get("content", {})
+            parts = content.get("parts", [])
 
-        return _ensure_report_shape(report, company_name, website)
+            if not parts:
+                return _fallback_report(company_name, website, "No response parts returned from Gemini")
 
-    except Exception as e:
-        return _fallback_report(company_name, website, str(e))
+            raw_output = parts[0].get("text", "")
+            report = _extract_json(raw_output)
+            return _ensure_report_shape(report, company_name, website)
+
+        except requests.exceptions.HTTPError as e:
+            if attempt < max_retries:
+                time.sleep(backoff)
+                backoff *= 2
+                continue
+            return _fallback_report(company_name, website, str(e))
+
+        except Exception as e:
+            return _fallback_report(company_name, website, str(e))
+
+    return _fallback_report(company_name, website, "Max retries exceeded")
 
 
 def _ensure_report_shape(report: dict, company_name: str, website: str) -> dict:
