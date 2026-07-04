@@ -1,5 +1,8 @@
 import io
 import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -7,7 +10,7 @@ from fastapi.templating import Jinja2Templates
 
 from config import settings
 from schemas import ResearchRequest, ResearchResponse
-from services.utils import is_url, normalize_url, clean_company_name, extract_name_from_url, safe_filename
+from services.utils import is_url, normalize_url, clean_company_name, extract_name_from_url
 from services.serper_service import find_official_website, gather_all_public_info
 from services.crawler_service import crawl_website
 from services.gemini_service import generate_ai_report
@@ -24,8 +27,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 # In-memory store for generated PDFs (keyed by filename)
 _pdf_cache: dict[str, bytes] = {}
