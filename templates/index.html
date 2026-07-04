@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ app_name }}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="logo-dot"></span>
+        <h2>Settings</h2>
+      </div>
+
+      <div class="field-group">
+        <label for="applicantName">Applicant Name</label>
+        <input type="text" id="applicantName" placeholder="Your name" />
+      </div>
+
+      <div class="field-group">
+        <label for="applicantEmail">Applicant Email</label>
+        <input type="email" id="applicantEmail" placeholder="you@example.com" />
+      </div>
+
+      <hr class="divider" />
+
+      <div class="field-group">
+        <label for="serperKey">Serper API Key</label>
+        <input type="password" id="serperKey" placeholder="Optional — uses server key if blank" />
+      </div>
+
+      <div class="field-group">
+        <label for="geminiKey">Gemini API Key</label>
+        <input type="password" id="geminiKey" placeholder="Optional — uses server key if blank" />
+      </div>
+
+      <div class="field-group">
+        <label for="geminiModel">Gemini Model</label>
+        <input type="text" id="geminiModel" placeholder="gemini-2.5-flash" />
+      </div>
+
+
+
+      <button id="saveConfigBtn" class="btn-secondary">Save Configuration</button>
+      <p id="saveStatus" class="save-status"></p>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="hero">
+        <p class="eyebrow">AI-powered company intelligence</p>
+
+        <h1>Know any company in minutes.</h1>
+
+        <p>
+          Enter a company name or website URL to generate an AI-powered company research report,
+          competitor analysis, pain points, and downloadable PDF.
+        </p>
+
+        <div class="sample-tags">
+          <span>Figma</span>
+          <span>Stripe</span>
+          <span>Tesla</span>
+          <span>Microsoft</span>
+        </div>
+
+        <div class="input-row">
+          <input
+            type="text"
+            id="companyInput"
+            placeholder="Enter company name or website URL, e.g. Figma or https://figma.com"
+          />
+          <button id="researchBtn" class="btn-primary">Research →</button>
+        </div>
+
+        <div id="progressBox" class="progress-box hidden">
+          <p id="progressText">Working...</p>
+        </div>
+      </div>
+
+      <!-- Report Card -->
+      <div id="reportCard" class="report-card hidden">
+        <div class="report-header">
+          <div>
+            <p class="report-label">Generated Company Report</p>
+            <h2 id="reportCompanyName">Company</h2>
+          </div>
+
+          <a id="reportWebsite" href="#" target="_blank" rel="noopener">
+            Website
+          </a>
+        </div>
+
+        <div class="report-grid">
+          <div class="report-section">
+            <h3>Contact Information</h3>
+            <p><strong>Phone:</strong> <span id="reportPhone">-</span></p>
+            <p><strong>Address:</strong> <span id="reportAddress">-</span></p>
+          </div>
+
+          <div class="report-section">
+            <h3>Products / Services</h3>
+            <ul id="reportProducts"></ul>
+          </div>
+        </div>
+
+        <div class="report-section">
+          <h3>Company Summary</h3>
+          <p id="reportSummary"></p>
+        </div>
+
+        <div class="report-section">
+          <h3>AI-generated Pain Points</h3>
+          <ul id="reportPainPoints"></ul>
+        </div>
+
+        <div class="report-section">
+          <h3>Competitors</h3>
+          <ul id="reportCompetitors"></ul>
+        </div>
+
+        <div class="action-row">
+          <button id="downloadPdfBtn" class="btn-primary">Download PDF</button>
+        </div>
+
+        <p id="actionStatus" class="save-status"></p>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
