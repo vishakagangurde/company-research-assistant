@@ -1,4 +1,4 @@
-import os
+import io
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
@@ -6,17 +6,16 @@ from reportlab.lib import colors
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 )
-from config import settings
 from services.utils import safe_filename
 
 
-def generate_pdf(report: dict) -> str:
-    """Builds a PDF research report and returns the filename (not full path)."""
+def generate_pdf(report: dict) -> tuple[bytes, str]:
+    """Builds a PDF research report in-memory and returns (pdf_bytes, filename)."""
     company_name = report.get("company_name", "company")
     filename = f"{safe_filename(company_name)}_research_report.pdf"
-    filepath = os.path.join(settings.REPORTS_DIR, filename)
 
-    doc = SimpleDocTemplate(filepath, pagesize=A4,
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
                              topMargin=0.7 * inch, bottomMargin=0.7 * inch)
     styles = getSampleStyleSheet()
 
@@ -102,4 +101,6 @@ def generate_pdf(report: dict) -> str:
         story.append(Paragraph("Not available", body_style))
 
     doc.build(story)
-    return filename
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return pdf_bytes, filename

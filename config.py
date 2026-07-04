@@ -13,9 +13,6 @@ class Settings:
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
-
-    REPORTS_DIR: str = os.path.join("outputs", "reports")
-
     # Crawler settings
     MAX_PAGES_TO_CRAWL: int = 6
     REQUEST_TIMEOUT: int = 10
@@ -31,5 +28,3 @@ class Settings:
 
 
 settings = Settings()
-
-os.makedirs(settings.REPORTS_DIR, exist_ok=True)
